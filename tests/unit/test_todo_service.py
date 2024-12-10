@@ -8,6 +8,7 @@ class TestTodoService(unittest.TestCase):
     def setUp(self):
         self.repository = TodoRepository()
         self.service = TodoService(self.repository)
+        self.repository.todos.clear()
 
     def test_create_todo(self):
         """
@@ -53,11 +54,11 @@ class TestTodoService(unittest.TestCase):
 
         todos = self.repository.list_all()
         self.assertEqual(len(todos), 2)
-        self.assertEqual(todos[0].title, "Test Title 1")
-        self.assertEqual(todos[1].title, "Test Title 2")
-        self.assertEqual(todos[0].description, "Test Description 1")
-        self.assertEqual(todos[1].description, "Test Description 2")
-        self.assertEqual(todos[0].due_date, "2024-11-03")
-        self.assertEqual(todos[1].due_date, "2024-11-04")
-        self.assertEqual(todos[0].status, "pending")
-        self.assertEqual(todos[1].status, "pending")
+        self.assertEqual(todo_1.title, "Test Title 1")
+        self.assertEqual(todo_2.title, "Test Title 2")
+        self.assertEqual(todo_1.description, "Test Description 1")
+        self.assertEqual(todo_2.description, "Test Description 2")
+        self.assertEqual(todo_1.due_date, "2024-11-03")
+        self.assertEqual(todo_2.due_date, "2024-11-04")
+        self.assertEqual(todo_1.status, "Pending")
+        self.assertEqual(todo_2.status, "Pending")
