@@ -22,3 +22,19 @@ class TodoService:
         todo = TodoItem(len(self.repository.todos) + 1, title, description, due_date)
         self.repository.add(todo)
         return todo
+
+    def update_todo(self, item_id, **updates):
+        """
+        Updates an existing TodoItem with the given details.
+
+        :param item_id: The ID of the todo item to update.
+        :param updates: The details to update for the TodoItem.
+        :return: The updated TodoItem instance, or None if the item does not exist.
+        """
+        for todo in self.repository.todos:
+            if todo.item_id == item_id:
+                valid_fields = {key: value for key, value in updates.items() if value is not None and hasattr(todo, key)}
+                for key, value in valid_fields.items():
+                    setattr(todo, key, value)
+                return todo
+        return None

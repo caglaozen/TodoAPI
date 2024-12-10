@@ -14,7 +14,7 @@ def create_todo():
     """
     Handles the POST request to create a new todo item.
 
-    :return: A JSON response containing the created TodoItem details and a 201 status code.
+    :return: A JSON response containing the created TodoItem details.
     """
     data = request.json
 
@@ -33,6 +33,38 @@ def create_todo():
             "status": todo.status
         }
     ), 201
+
+
+@app.route("/todos/<int:item_id>", methods=["PUT"])
+def update_todo(item_id):
+    """
+    Handles the PUT request to update a spesific todo item.
+
+    :param item_id: The ID of the todo item to update.
+    :return: A JSON response containing the updated TodoItem details or 404 status code if the item does not exist.
+    """
+    data = request.json
+
+    todo = service.update_todo(
+        item_id,
+        title=data.get("title"),
+        description=data.get("description"),
+        due_date=data.get("due_date"),
+        status=data.get("status")
+    )
+
+    if todo is None:
+        return jsonify({"message": "Todo item not found"}), 404
+
+    return jsonify(
+        {
+            "item_id": todo.item_id,
+            "title": todo.title,
+            "description": todo.description,
+            "due_date": todo.due_date,
+            "status": todo.status
+        }
+    ), 200
 
 
 @app.route("/todos", methods=["GET"])

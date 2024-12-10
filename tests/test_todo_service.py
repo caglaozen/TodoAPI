@@ -19,6 +19,21 @@ class TestTodoService(unittest.TestCase):
         self.assertEqual(todo.due_date, "2024-11-03")
         self.assertEqual(len(self.repository.todos), 1)
 
+    def test_update_todo(self):
+        """
+
+        """
+        todo = self.service.create_todo("Test Title", "Test Description", "2024-11-03")
+        updated_todo = self.service.update_todo(todo.item_id, title="Updated Title", description="Updated Description",
+                                                due_date="2024-11-04")
+        self.assertIsNotNone(updated_todo)
+        self.assertEqual(updated_todo.title, "Updated Title")
+        self.assertEqual(updated_todo.description, "Updated Description")
+        self.assertEqual(updated_todo.due_date, "2024-11-04")
+
+        non_existent_update = self.service.update_todo(999, title="Non-existent Title")
+        self.assertIsNone(non_existent_update)
+
     def test_list_all_todos(self):
         """
         Test that all TodoItems are listed from the repository.
