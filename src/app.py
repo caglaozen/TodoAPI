@@ -11,6 +11,11 @@ service = TodoService(repo)
 
 @app.route("/todos", methods=["POST"])
 def create_todo():
+    """
+    Handles the POST request to create a new todo item.
+
+    :return: A JSON response containing the created TodoItem details and a 201 status code.
+    """
     data = request.json
 
     todo = service.create_todo(
@@ -32,6 +37,11 @@ def create_todo():
 
 @app.route("/todos", methods=["GET"])
 def list_all_todos():
+    """
+    Handles the GET request to list all todo items.
+
+    :return: A JSON response containing a list of all TodoItem details and a 200 status code.
+    """
     todos = service.repository.list_all()
 
     result = [
