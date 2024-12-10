@@ -33,8 +33,18 @@ class TodoService:
         """
         for todo in self.repository.todos:
             if todo.item_id == item_id:
-                valid_fields = {key: value for key, value in updates.items() if value is not None and hasattr(todo, key)}
+                valid_fields = {key: value for key, value in updates.items() if
+                                value is not None and hasattr(todo, key)}
                 for key, value in valid_fields.items():
                     setattr(todo, key, value)
                 return todo
         return None
+
+    def delete_todo(self, item_id):
+        """
+        Deletes an existing TodoItem with the given ID.
+
+        :param item_id: The ID of the todo item to delete.
+        :return: True if the item was deleted, False otherwise.
+        """
+        return self.repository.delete(item_id)

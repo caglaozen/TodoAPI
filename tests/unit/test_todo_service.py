@@ -21,7 +21,7 @@ class TestTodoService(unittest.TestCase):
 
     def test_update_todo(self):
         """
-
+        Test that an existing TodoItem is updated with the new details.
         """
         todo = self.service.create_todo("Test Title", "Test Description", "2024-11-03")
         updated_todo = self.service.update_todo(todo.item_id, title="Updated Title", description="Updated Description",
@@ -33,6 +33,16 @@ class TestTodoService(unittest.TestCase):
 
         non_existent_update = self.service.update_todo(999, title="Non-existent Title")
         self.assertIsNone(non_existent_update)
+
+    def test_delete_todo(self):
+        """
+        Test that an existing TodoItem is deleted from the repository.
+        """
+        todo = self.service.create_todo("Test Title", "Test Description", "2024-11-03")
+        self.assertTrue(self.service.delete_todo(todo.item_id))
+        self.assertEqual(len(self.repository.todos), 0)
+
+        self.assertFalse(self.service.delete_todo(999))
 
     def test_list_all_todos(self):
         """

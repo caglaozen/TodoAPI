@@ -38,7 +38,7 @@ def create_todo():
 @app.route("/todos/<int:item_id>", methods=["PUT"])
 def update_todo(item_id):
     """
-    Handles the PUT request to update a spesific todo item.
+    Handles the PUT request to update a specific todo item.
 
     :param item_id: The ID of the todo item to update.
     :return: A JSON response containing the updated TodoItem details or 404 status code if the item does not exist.
@@ -65,6 +65,20 @@ def update_todo(item_id):
             "status": todo.status
         }
     ), 200
+
+
+@app.route("/todos/<int:item_id>", methods=["DELETE"])
+def delete_todo(item_id):
+    """
+    Handles the DELETE request to delete a specific todo item.
+
+    :param item_id: The ID of the todo item to delete.
+    :return: A JSON response with a success message or 404 status code if the item does not exist.
+    """
+    if service.delete_todo(item_id):
+        return jsonify({"message": "Todo item deleted"}), 200
+    else:
+        return jsonify({"message": "Todo item not found"}), 404
 
 
 @app.route("/todos", methods=["GET"])

@@ -13,6 +13,26 @@ class TodoRepository:
         """
         self.todos.append(todo)
 
+    def find_by_id(self, item_id):
+        """
+        Finds a TodoItem by its ID.
+
+        :param item_id: The ID of the TodoItem to find.
+        """
+        return next((todo for todo in self.todos if todo.item_id == item_id), None)
+
+    def delete(self, item_id):
+        """
+        Deletes a TodoItem by its ID.
+
+        :param item_id: The ID of the TodoItem to delete.
+        """
+        todo = self.find_by_id(item_id)
+        if todo:
+            self.todos.remove(todo)
+            return True
+        return False
+
     def list_all(self):
         """
         Lists all TodoItems in the repository.
