@@ -1,9 +1,35 @@
+import json
+import os.path
+
+from src.model.todo_item import TodoItem
+
+
 class TodoRepository:
-    def __init__(self):
+    def __init__(self, file_path="todos.json"):
         """
         Initialize the TodoRepository with an empty list of todos.
         """
-        self.todos = []
+        self.file_path = file_path
+        self.todos = self._load_from_file()
+
+    def _load_from_file(self):
+        """
+        Loads todos from a JSON file if it exists.
+
+        :return: A list of TodoItem instances.
+        """
+        if os.path.exists(self.file_path):
+            with open(self.file_path, "r") as file:
+                data = json.load(file)
+                return [TodoItem(**item) for item in data]
+        return []
+
+    def _save_to_file(self):
+        """
+        Saves the current list of todos to a JSON file.
+        """
+        with open(self.file_path, "w") as file:
+            json.dump([todo.__dict__ for todo in self.todos], file)
 
     def add(self, todo):
         """
@@ -12,6 +38,7 @@ class TodoRepository:
         :param todo: The TodoItem instance to add.
         """
         self.todos.append(todo)
+        self._save_to_file()
 
     def find_by_id(self, item_id):
         """
@@ -30,6 +57,7 @@ class TodoRepository:
         todo = self.find_by_id(item_id)
         if todo:
             self.todos.remove(todo)
+            self._save_to_file()
             return True
         return False
 
