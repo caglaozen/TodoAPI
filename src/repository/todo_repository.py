@@ -28,8 +28,8 @@ class TodoRepository:
         """
         Saves the current list of todos to a JSON file.
         """
-        with open(self.file_path, "w") as file:
-            json.dump([todo.__dict__ for todo in self.todos], file)
+        with open(self.file_path, "w", encoding="utf-8") as file:
+            json.dump([todo.__dict__ for todo in self.todos], file, ensure_ascii=False, indent=4)
 
     def add(self, todo):
         """
