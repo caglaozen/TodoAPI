@@ -33,8 +33,9 @@ class TodoService:
         """
         for todo in self.repository.todos:
             if todo.item_id == item_id:
-                valid_fields = {key: value for key, value in updates.items() if
-                                value is not None and hasattr(todo, key)}
+                valid_fields = {
+                    key: value for key, value in updates.items() if value is not None and hasattr(todo, key)
+                }
                 for key, value in valid_fields.items():
                     setattr(todo, key, value)
                 return todo
