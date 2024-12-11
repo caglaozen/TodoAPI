@@ -18,21 +18,20 @@ def create_todo():
     """
     data = request.json
 
-    todo = service.create_todo(
-        title=data["title"],
-        description=data["description"],
-        due_date=data["due_date"]
-    )
+    todo = service.create_todo(title=data["title"], description=data["description"], due_date=data["due_date"])
 
-    return jsonify(
-        {
-            "item_id": todo.item_id,
-            "title": todo.title,
-            "description": todo.description,
-            "due_date": todo.due_date,
-            "status": todo.status
-        }
-    ), 201
+    return (
+        jsonify(
+            {
+                "item_id": todo.item_id,
+                "title": todo.title,
+                "description": todo.description,
+                "due_date": todo.due_date,
+                "status": todo.status,
+            }
+        ),
+        201,
+    )
 
 
 @app.route("/todos/<int:item_id>", methods=["PUT"])
@@ -50,21 +49,24 @@ def update_todo(item_id):
         title=data.get("title"),
         description=data.get("description"),
         due_date=data.get("due_date"),
-        status=data.get("status")
+        status=data.get("status"),
     )
 
     if todo is None:
         return jsonify({"message": "Todo item not found"}), 404
 
-    return jsonify(
-        {
-            "item_id": todo.item_id,
-            "title": todo.title,
-            "description": todo.description,
-            "due_date": todo.due_date,
-            "status": todo.status
-        }
-    ), 200
+    return (
+        jsonify(
+            {
+                "item_id": todo.item_id,
+                "title": todo.title,
+                "description": todo.description,
+                "due_date": todo.due_date,
+                "status": todo.status,
+            }
+        ),
+        200,
+    )
 
 
 @app.route("/todos/<int:item_id>", methods=["DELETE"])
@@ -96,7 +98,7 @@ def list_all_todos():
             "title": todo.title,
             "description": todo.description,
             "due_date": todo.due_date,
-            "status": todo.status
+            "status": todo.status,
         }
         for todo in todos
     ]
