@@ -63,3 +63,16 @@ class TestTodoService(unittest.TestCase):
         self.assertEqual(todo_2.due_date, "2024-11-04")
         self.assertEqual(todo_1.status, "pending")
         self.assertEqual(todo_2.status, "pending")
+
+    def test_mark_as_completed(self):
+        """
+        Test that the status of a TodoItem is updated to 'completed'.
+        """
+        todo = self.service.create_todo("Test Title", "Test Description", "2024-11-03")
+        updated_todo = self.service.mark_as_completed(todo.item_id)
+
+        self.assertIsNotNone(updated_todo, "Todo item should exist")
+        self.assertEqual(updated_todo.status, "completed")
+
+        non_existent_update = self.service.mark_as_completed(999)
+        self.assertIsNone(non_existent_update, "Todo item should not exist")

@@ -106,5 +106,32 @@ def list_all_todos():
     return jsonify(result), 200
 
 
+@app.route("/todos/<int:item_id>/complete", methods=["PUT"])
+def mark_todo_as_completed(item_id):
+    """
+    Handles the PUT request to mark a specific todo item as completed.
+
+    :param item_id: The ID of the todo item to mark as completed.
+    :return: A JSON response containing the updated TodoItem details or 404 status code if the item does not exist.
+    """
+    todo = service.mark_as_completed(item_id)
+
+    if todo is None:
+        return jsonify({"message": "Todo item not found"}), 404
+
+    return (
+        jsonify(
+            {
+                "item_id": todo.item_id,
+                "title": todo.title,
+                "description": todo.description,
+                "due_date": todo.due_date,
+                "status": todo.status,
+            }
+        ),
+        200,
+    )
+
+
 if __name__ == "__main__":
     app.run(debug=True)

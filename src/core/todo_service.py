@@ -41,6 +41,16 @@ class TodoService:
                 return todo
         return None
 
+    def mark_as_completed(self, item_id):
+        """
+        Marks a todo item as completed by updating its status to 'completed'.
+
+        :param item_id: The ID of the todo item to mark as completed.
+        :return: The updated TodoItem instance, or None if the item does not exist.
+        """
+        todo = self.update_todo(item_id, status="completed")
+        return todo
+
     def delete_todo(self, item_id):
         """
         Deletes an existing TodoItem with the given ID.
