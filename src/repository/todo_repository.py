@@ -5,7 +5,7 @@ from src.model.todo_item import TodoItem
 
 
 class TodoRepository:
-    def __init__(self, file_path="todos.json"):
+    def __init__(self, file_path="src/outputs/todos.json"):
         """
         Initialize the TodoRepository with an empty list of todos.
         """
