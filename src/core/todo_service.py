@@ -38,6 +38,7 @@ class TodoService:
                 }
                 for key, value in valid_fields.items():
                     setattr(todo, key, value)
+                    self.repository.save_to_file()
                 return todo
         return None
 
