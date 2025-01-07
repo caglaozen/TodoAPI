@@ -23,6 +23,9 @@ jobs:
       - name: Check Python version
         run: python --version
 
+      - name: Check Python3 path
+        run: which python3
+
       - name: Install virtualenv
         run: |
           pip install virtualenv
@@ -62,6 +65,9 @@ jobs:
 
       - name: Check Python version
         run: python --version
+
+      - name: Check Python3 path
+        run: which python3
 
       - name: Install virtualenv
         run: |
