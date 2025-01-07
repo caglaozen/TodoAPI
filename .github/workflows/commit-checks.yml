@@ -20,13 +20,16 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Check Python version
+        run: python --version
+
       - name: Install virtualenv
         run: |
           pip install virtualenv
 
       - name: Create virtualenv
         run: |
-          python -m venv venv
+          python3 -m venv venv
           ls -l venv/bin  # Sanal ortamın doğru oluşturulup oluşturulmadığını kontrol et
 
       - name: Activate virtualenv
@@ -57,13 +60,16 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Check Python version
+        run: python --version
+
       - name: Install virtualenv
         run: |
           pip install virtualenv
 
       - name: Create virtualenv
         run: |
-          python -m venv venv
+          python3 -m venv venv
           ls -l venv/bin  # Sanal ortamın doğru oluşturulup oluşturulmadığını kontrol et
 
       - name: Activate virtualenv
