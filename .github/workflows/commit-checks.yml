@@ -20,10 +20,18 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Check Python path
+        run: |
+          echo "Python path: $(which python3)"
+          echo "Python version: $(python3 --version)"
+
+      - name: List directory structure
+        run: ls -R
+
       - name: Install dependencies
         run: |
-          python3 -m venv venv
-          source venv/bin/activate || echo "venv aktif edilemedi!"
+          python3 -m venv venv || echo "Sanal ortam oluşturulamadı!"
+          source venv/bin/activate || echo "Sanal ortam aktif edilemedi!"
           pip install --upgrade pip
           pip install -r requirements.txt
 
