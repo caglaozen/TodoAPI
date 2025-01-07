@@ -51,12 +51,6 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Create and activate virtualenv
-        run: |
-          python3 -m venv venv
-          source venv/bin/activate
-          echo "Virtual environment activated"
-
       - name: Run unit tests
         run: |
           make test
