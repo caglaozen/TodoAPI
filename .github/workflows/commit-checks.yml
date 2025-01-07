@@ -20,22 +20,17 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install virtualenv
-        run: |
-          pip install virtualenv
-
-      - name: Create and activate virtualenv
+      - name: Install dependencies
         run: |
           python -m venv venv
           source venv/bin/activate
-
-      - name: Install dependencies
-        run: |
+          pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run style check
         run: |
-          make format
+          source venv/bin/activate
+          make style-check
 
   unit-test:
     name: Unit Tests
@@ -50,19 +45,14 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install virtualenv
-        run: |
-          pip install virtualenv
-
-      - name: Create and activate virtualenv
+      - name: Install dependencies
         run: |
           python -m venv venv
           source venv/bin/activate
-
-      - name: Install dependencies
-        run: |
+          pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run unit tests
         run: |
+          source venv/bin/activate
           make test
