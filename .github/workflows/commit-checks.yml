@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m venv venv
+          python3 -m venv venv
           source venv/bin/activate || echo "venv aktif edilemedi!"
           pip install --upgrade pip
           pip install -r requirements.txt
@@ -30,7 +30,7 @@ jobs:
       - name: Run style check
         run: |
           source venv/bin/activate
-          make style-check
+          python3 make style-check
 
   unit-test:
     name: Unit Tests
@@ -47,7 +47,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m venv venv
+          python3 -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
@@ -55,4 +55,4 @@ jobs:
       - name: Run unit tests
         run: |
           source venv/bin/activate
-          make test
+          python3 make test

@@ -1,6 +1,6 @@
 VENV_PATH = venv
-PYTHON = $(VENV_PATH)/bin/python
-PIP = $(PYTHON) -m pip
+PYTHON = $(VENV_PATH)/bin/python3
+PIP = $(VENV_PATH)/bin/pip
 
 .PHONY: clean setup uninstall install update-requirements test style-check format
 
