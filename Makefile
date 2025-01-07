@@ -32,6 +32,3 @@ style-check:
 format:
 	black src/ test/ --line-length=120 --target-version=py310
 	isort . --profile black --line-length 120 --python-version 310
-
-
-
