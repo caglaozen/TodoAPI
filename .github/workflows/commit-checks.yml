@@ -25,6 +25,7 @@ jobs:
       - name: Create virtual environment and install dependencies
         run: |
           python3 -m venv venv  # Sanal ortamı oluştur
+          ls -l venv/bin  # Sanal ortam dosyalarının doğru oluşturulup oluşturulmadığını kontrol et
           . venv/bin/activate  # Sanal ortamı aktive et
           pip install --upgrade pip  # pip'i güncelle
           pip install -r requirements.txt  # Bağımlılıkları yükle
