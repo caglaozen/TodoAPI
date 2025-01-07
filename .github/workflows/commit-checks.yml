@@ -32,8 +32,8 @@ jobs:
 
       - name: Create virtualenv
         run: |
-          python3 -m venv venv
-          ls -l venv/bin  # Sanal ortamın doğru oluşturulup oluşturulmadığını kontrol et
+          python3 -m venv /home/runner/work/TodoAPI/TodoAPI/venv  # Tam yolu belirt
+          ls -l /home/runner/work/TodoAPI/TodoAPI/venv  # Sanal ortam dizinini kontrol et
 
       - name: Activate virtualenv
         run: |
@@ -75,8 +75,8 @@ jobs:
 
       - name: Create virtualenv
         run: |
-          python3 -m venv venv
-          ls -l venv/bin  # Sanal ortamın doğru oluşturulup oluşturulmadığını kontrol et
+          python3 -m venv /home/runner/work/TodoAPI/TodoAPI/venv  # Tam yolu belirt
+          ls -l /home/runner/work/TodoAPI/TodoAPI/venv  # Sanal ortam dizinini kontrol et
 
       - name: Activate virtualenv
         run: |
