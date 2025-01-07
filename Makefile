@@ -9,7 +9,7 @@ clean: $(VENV_PATH)
 	rm -rf __pycache__
 
 setup:
-	python3.12 -m venv $(VENV_PATH)
+	python3.13 -m venv $(VENV_PATH)
 	$(PIP) install --upgrade pip
 	$(PIP) install -r requirements.txt
 
