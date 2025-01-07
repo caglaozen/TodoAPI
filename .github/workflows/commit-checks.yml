@@ -17,6 +17,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Get directory
+        run: ls
+
       - name: Set up Python 3.12
         uses: actions/setup-python@v2
         with:
