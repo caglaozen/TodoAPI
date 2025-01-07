@@ -26,20 +26,6 @@ jobs:
       - name: Check Python3 path
         run: which python3
 
-      - name: Install virtualenv
-        run: |
-          pip install virtualenv
-
-      - name: Create virtualenv
-        run: |
-          python3 -m venv /home/runner/work/TodoAPI/TodoAPI/venv  # Tam yolu belirt
-          ls -l /home/runner/work/TodoAPI/TodoAPI/venv  # Sanal ortam dizinini kontrol et
-
-      - name: Activate virtualenv
-        run: |
-          source venv/bin/activate
-          echo "Virtual environment activated"
-
       - name: Install dependencies
         run: |
           pip install black
@@ -48,7 +34,7 @@ jobs:
 
       - name: Run style check
         run: |
-          make format
+          make style-check
 
   unit-test:
     name: Unit Tests
@@ -68,20 +54,6 @@ jobs:
 
       - name: Check Python3 path
         run: which python3
-
-      - name: Install virtualenv
-        run: |
-          pip install virtualenv
-
-      - name: Create virtualenv
-        run: |
-          python3 -m venv /home/runner/work/TodoAPI/TodoAPI/venv  # Tam yolu belirt
-          ls -l /home/runner/work/TodoAPI/TodoAPI/venv  # Sanal ortam dizinini kontrol et
-
-      - name: Activate virtualenv
-        run: |
-          source venv/bin/activate
-          echo "Virtual environment activated"
 
       - name: Install dependencies
         run: |
