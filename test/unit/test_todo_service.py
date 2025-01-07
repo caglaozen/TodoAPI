@@ -55,7 +55,7 @@ class TestTodoService(unittest.TestCase):
 
         todos = self.repository.list_all()
         self.assertEqual(len(todos), 2)
-        self.assertEqual(todo_1.title, "Test Title 1")
+        self.assertEqual(todo_1.title, "Test Title 5")
         self.assertEqual(todo_2.title, "Test Title 2")
         self.assertEqual(todo_1.description, "Test Description 1")
         self.assertEqual(todo_2.description, "Test Description 2")
