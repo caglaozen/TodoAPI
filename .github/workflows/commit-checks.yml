@@ -17,9 +17,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Get directory
-        run: ls -l
-
       - name: Set up Python 3.13
         uses: actions/setup-python@v2
         with:
@@ -27,9 +24,9 @@ jobs:
 
       - name: Create virtual environment and install dependencies
         run: |
-          python3 -m venv venv  # Sanal ortamı oluştur
-          ls -l venv/bin  # Sanal ortam dosyalarının doğru oluşturulup oluşturulmadığını kontrol et
-          . venv/bin/activate  # Sanal ortamı aktive et
+          python3 -m venv $GITHUB_WORKSPACE/venv  # Sanal ortamı farklı bir yolda oluştur
+          ls -l $GITHUB_WORKSPACE/venv/bin  # Sanal ortam dosyalarının doğru oluşturulup oluşturulmadığını kontrol et
+          source $GITHUB_WORKSPACE/venv/bin/activate  # Sanal ortamı aktive et
           pip install --upgrade pip  # pip'i güncelle
           pip install -r requirements.txt  # Bağımlılıkları yükle
 
@@ -47,8 +44,8 @@ jobs:
 
       - name: Lint with black
         run: |
-          . venv/bin/activate
-          black --check .
+          source $GITHUB_WORKSPACE/venv/bin/activate
+          $GITHUB_WORKSPACE/venv/bin/black --check .  # Tam yolu belirt
 
   tests:
     runs-on: ubuntu-latest
@@ -59,5 +56,5 @@ jobs:
 
       - name: Run tests with pytest
         run: |
-          . venv/bin/activate
+          source $GITHUB_WORKSPACE/venv/bin/activate
           pytest --maxfail=1 --disable-warnings -q
