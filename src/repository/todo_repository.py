@@ -17,7 +17,10 @@ class TodoRepository:
         Adds a new TodoItem to the repository.
 
         :param todo: The TodoItem instance to add.
+        :raises ValueError: If a TodoItem with the same ID already exists.
         """
+        if self.find_by_id(todo.item_id):
+            raise ValueError(f"A TodoItem with ID {todo.item_id} already exists.")
         self.todos.append(todo)
         self.save_to_file()
 
