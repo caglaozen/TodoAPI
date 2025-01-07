@@ -23,13 +23,8 @@ jobs:
       - name: Check Python version
         run: python --version
 
-      - name: Check Python3 path
-        run: which python3
-
       - name: Install dependencies
         run: |
-          pip install black
-          pip install isort
           pip install -r requirements.txt
 
       - name: Run style check
@@ -52,12 +47,15 @@ jobs:
       - name: Check Python version
         run: python --version
 
-      - name: Check Python3 path
-        run: which python3
-
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+
+      - name: Create and activate virtualenv
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          echo "Virtual environment activated"
 
       - name: Run unit tests
         run: |
