@@ -76,5 +76,3 @@ class TestTodoService(unittest.TestCase):
 
         non_existent_update = self.service.mark_as_completed(999)
         self.assertIsNone(non_existent_update, "Todo item should not exist")
-
-
