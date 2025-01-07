@@ -64,8 +64,6 @@ class TestTodoService(unittest.TestCase):
         self.assertEqual(todo_1.status, "pending")
         self.assertEqual(todo_2.status, "pending")
 
-
-
     def test_mark_as_completed(self):
         """
         Test that the status of a TodoItem is updated to 'completed'.
