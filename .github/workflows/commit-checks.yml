@@ -1,66 +1,59 @@
 name: Commit Checks
 
-on: [push]
-
-env:
-  PIP_ROOT_USER_ACTION: ignore
-  PYTHON_VERSION: 3.12
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
 
 jobs:
-  style-check:
-    name: Style Check
+  setup:
     runs-on: ubuntu-latest
-    timeout-minutes: 2
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Python
+      - name: Set up Python 3.12
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: 3.12
 
-      - name: Check Python path
+      - name: Create virtual environment and install dependencies
+        run: |
+          python3 -m venv venv  # Sanal ortamı oluştur
+          . venv/bin/activate  # Sanal ortamı aktive et
+          pip install --upgrade pip  # pip'i güncelle
+          pip install -r requirements.txt  # Bağımlılıkları yükle
+
+      - name: Verify Python version
         run: |
           echo "Python path: $(which python3)"
           echo "Python version: $(python3 --version)"
 
-      - name: List directory structure
-        run: ls -R
-
-      - name: Install dependencies
-        run: |
-          python3 -m venv venv || echo "Sanal ortam oluşturulamadı!"
-          source venv/bin/activate || echo "Sanal ortam aktif edilemedi!"
-          pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run style check
-        run: |
-          source venv/bin/activate
-          python3 make style-check
-
-  unit-test:
-    name: Unit Tests
+  lint:
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    needs: setup
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install dependencies
+      - name: Lint with black
         run: |
-          python3 -m venv venv
-          source venv/bin/activate
-          pip install --upgrade pip
-          pip install -r requirements.txt
+          . venv/bin/activate
+          black --check .
 
-      - name: Run unit tests
+  tests:
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run tests with pytest
         run: |
-          source venv/bin/activate
-          python3 make test
+          . venv/bin/activate
+          pytest --maxfail=1 --disable-warnings -q
