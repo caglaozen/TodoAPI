@@ -10,3 +10,4 @@ __pycache__/
 *.pyc
 __.pytest_cache__/
 test/unit/.pytest_cache/
+.DS_Store
