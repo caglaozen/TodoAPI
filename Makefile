@@ -26,9 +26,9 @@ test:
 	$(PYTHON) -m unittest discover -s test/unit/
 
 style-check:
-	black src/ test/ --line-length=120 --target-version=py312 --check
-	isort . --profile black --line-length 120 --python-version 311 --check
+	black src/ test/ --line-length=120 --target-version=py310 --check
+	isort . --profile black --line-length 120 --python-version 310 --check
 
 format:
-	black src/ test/ --line-length=120 --target-version=py312
-	isort . --profile black --line-length 120 --python-version 311
+	black src/ test/ --line-length=120 --target-version=py310
+	isort . --profile black --line-length 120 --python-version 310
