@@ -13,21 +13,24 @@ This is a Python-based Todo application that provides functionality to manage to
 ## Project Structure
 
 ```
-src/
-├── core/
-│   └── todo_service.py         # Business logic for managing todos
-├── model/
-│   └── todo_item.py            # TodoItem class definition
-├── repository/
-│   └── todo_repository.py      # Repository for data persistence
-└── outputs/
-    └── todos.json              # JSON file storing todo items
-
-app.py                          # Flask app defining API endpoints
-
-tests/
-├── test_todo_service.py        # Unit tests for TodoService
-└── test_todo_repository.py     # Unit tests for TodoRepository
+TodoAPI/
+├── Dockerfile                  # Docker configuration
+├── docker-compose.yml         # Docker Compose configuration
+├── requirements.txt           # Project dependencies
+├── src/
+│   ├── core/
+│   │   └── todo_service.py     # Business logic for managing todos
+│   ├── model/
+│   │   └── todo_item.py        # TodoItem class definition
+│   ├── repository/
+│   │   └── todo_repository.py  # Repository for data persistence
+│   ├── outputs/
+│   │   └── todos.json          # JSON file storing todo items
+│   └── main.py                 # Flask app defining API endpoints
+│
+└── tests/
+    ├── test_todo_service.py    # Unit tests for TodoService
+    └── test_todo_repository.py # Unit tests for TodoRepository
 ```
 
 ## Installation
@@ -48,6 +51,19 @@ tests/
    ```bash
    pip install -r requirements.txt
    ```
+
+## Docker Installation
+
+You can also run this application using Docker, which ensures consistent environments across different systems.
+
+1. **Build the Docker Image**
+   ```bash
+   docker build -t todo-api .
+
+2. **Run with Docker Compose**
+   ```bash
+   docker-compose up
+    ```
 
 ## Usage
 
