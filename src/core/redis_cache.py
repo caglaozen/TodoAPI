@@ -6,13 +6,11 @@ import redis
 
 class RedisCache:
     def __init__(self):
-        # Get Redis configuration from environment variables or use defaults
         host = os.environ.get("REDIS_HOST", "redis")
         port = int(os.environ.get("REDIS_PORT", 6379))
 
         try:
             self.redis_client = redis.Redis(host=host, port=port)
-            # Test connection
             self.redis_client.ping()
         except redis.ConnectionError as e:
             print(f"Warning: Could not connect to Redis: {e}")
