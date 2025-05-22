@@ -1,3 +1,7 @@
+import uuid
+
+from src.config.redis_config import ALL_TODOS_KEY, TODO_ITEM_KEY_PREFIX
+from src.core.redis_cache import RedisCache
 from src.model.todo_item import TodoItem
 
 
@@ -9,6 +13,24 @@ class TodoService:
         :param repository: A repository object that manages TodoItem instances.
         """
         self.repository = repository
+        self.cache = RedisCache()
+
+    def get_all_todos(self):
+        """
+        Retrieves all TodoItems from Redis.
+
+        :return: A list of all TodoItems.
+        """
+        return self.repository.list_all()
+
+    def get_todo_by_id(self, item_id):
+        """
+        Gets a todo item by its ID.
+
+        :param item_id: The ID of the todo item to retrieve.
+        :return: TodoItem if found, None otherwise.
+        """
+        return self.repository.find_by_id(item_id)
 
     def create_todo(self, title, description, due_date):
         """
@@ -19,8 +41,12 @@ class TodoService:
         :param due_date: The due date of the TodoItem.
         :return: The created TodoItem instance.
         """
-        todo = TodoItem(len(self.repository.todos) + 1, title, description, due_date)
+        unique_id = str(uuid.uuid4())
+
+        todo = TodoItem(unique_id, title, description, due_date)
         self.repository.add(todo)
+        self.cache.delete(ALL_TODOS_KEY)
+
         return todo
 
     def update_todo(self, item_id, **updates):
@@ -38,7 +64,9 @@ class TodoService:
                 }
                 for key, value in valid_fields.items():
                     setattr(todo, key, value)
-                    self.repository.save_to_file()
+
+                self.repository._save_to_redis()
+
                 return todo
         return None
 
@@ -50,6 +78,7 @@ class TodoService:
         :return: The updated TodoItem instance, or None if the item does not exist.
         """
         todo = self.update_todo(item_id, status="completed")
+
         return todo
 
     def delete_todo(self, item_id):
@@ -59,4 +88,11 @@ class TodoService:
         :param item_id: The ID of the todo item to delete.
         :return: True if the item was deleted, False otherwise.
         """
+        item_id_str = str(item_id)
+
+        key = f"{TODO_ITEM_KEY_PREFIX}{item_id_str}"
+
+        self.cache.delete(key)
+        self.cache.delete(ALL_TODOS_KEY)
+
         return self.repository.delete(item_id)

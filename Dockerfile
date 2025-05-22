@@ -4,8 +4,10 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt && pip list
 
 COPY . .
 
-CMD ["python", "-m", "src.main"]
+EXPOSE 8000
+
+CMD ["python", "-m", "src.app"]

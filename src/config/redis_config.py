@@ -1,0 +1,5 @@
+TODO_ITEM_KEY_PREFIX = "todo_"
+ALL_TODOS_KEY = "all_todos"
+
+DEFAULT_HOST = "redis"
+DEFAULT_PORT = 6379
