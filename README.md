@@ -5,7 +5,8 @@ This is a Python-based Todo application that provides functionality to manage to
 ## Features
 
 - **Create, Read, Update, and Delete (CRUD)**: Manage your todos with ease.
-- **JSON File Storage**: Persist todo items in a JSON file (`todos.json`).
+- **Redis Storage**: Persist todo items in Redis for fast access.
+- **Redis Caching**: Efficient data retrieval with Redis-based caching.
 - **Mark As Completed**: Quickly mark todo items as completed.
 - **RESTful API**: Access the features programmatically using HTTP methods.
 - **Unit Testing**: Comprehensive tests for both the repository and service layers.
@@ -24,8 +25,6 @@ TodoAPI/
 │   │   └── todo_item.py        # TodoItem class definition
 │   ├── repository/
 │   │   └── todo_repository.py  # Repository for data persistence
-│   ├── outputs/
-│   │   └── todos.json          # JSON file storing todo items
 │   └── main.py                 # Flask app defining API endpoints
 │
 └── tests/
@@ -147,19 +146,4 @@ make style-check
 Run the style checker and format the files:
 ```bash
 make format
-```
-
-## Example JSON Output
-
-`todos.json`:
-```json
-[
-  {
-    "item_id": 1,
-    "title": "Sample Task",
-    "description": "This is a sample task.",
-    "due_date": "2025-01-08",
-    "status": "pending"
-  }
-]
 ```

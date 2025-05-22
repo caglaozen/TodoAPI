@@ -1,116 +1,146 @@
-import json
-import os
 import unittest
+from unittest.mock import MagicMock, patch
 
+from src.config.redis_config import ALL_TODOS_KEY, TODO_ITEM_KEY_PREFIX
 from src.model.todo_item import TodoItem
 from src.repository.todo_repository import TodoRepository
 
 
 class TestTodoRepository(unittest.TestCase):
     def setUp(self):
-        self.test_file_path = "test_todos.json"
-        with open(self.test_file_path, "w", encoding="utf-8") as f:
-            json.dump([], f)
-        self.repository = TodoRepository(file_path=self.test_file_path)
-        self.sample_todo = TodoItem(
-            item_id=1, title="Sample Todo", description="Sample Description", due_date="2025-01-07"
-        )
+        self.mock_cache = MagicMock()
+        self.patcher = patch("src.repository.todo_repository.RedisCache", return_value=self.mock_cache)
+        self.mock_redis_class = self.patcher.start()
+        self.repository = TodoRepository()
+        self.repository.todos = []
+        self.sample_todo = TodoItem(1, "Sample Todo", "Sample Description", "2025-01-07")
 
     def tearDown(self):
-        os.remove(self.test_file_path)
+        self.patcher.stop()
 
-    def test_add(self):
-        """
-        Test that a new TodoItem is added to the repository and saved to a file.
-        """
-        todo = TodoItem(item_id=1, title="Test Add", description="Adding a test todo", due_date="2025-01-07")
+    def test_add_todo(self):
+        """Test that a new TodoItem is added to the repository and saved to Redis."""
+        todo = TodoItem(1, "Test Title", "Test Description", "2023-01-01")
+
+        self.mock_cache.get.return_value = None
         self.repository.add(todo)
 
-        self.assertEqual(len(self.repository.todos), 1)
-        self.assertEqual(self.repository.todos[0].title, "Test Add")
-        self.assertTrue(os.path.exists(self.test_file_path))
+        self.mock_cache.set.assert_any_call("all_todos", [todo])
+        self.mock_cache.set.assert_any_call(f"todo_{todo.item_id}", todo)
 
-        with open(self.test_file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            self.assertEqual(len(data), 1)
-            self.assertEqual(data[0]["title"], "Test Add")
-
-    def test_find_by_id(self):
-        """
-        Test that a TodoItem can be found by its ID.
-        """
-        self.repository.todos = [self.sample_todo]
+    def test_find_by_id_existing(self):
+        """Test that a TodoItem can be found by its ID."""
+        todo_dict = self.sample_todo.__dict__
+        self.mock_cache.get.return_value = todo_dict
 
         found_todo = self.repository.find_by_id(1)
-        self.assertEqual(found_todo, self.sample_todo)
 
-        not_found_todo = self.repository.find_by_id(2)
-        self.assertIsNone(not_found_todo)
+        self.assertEqual(found_todo.item_id, 1)
+        self.assertEqual(found_todo.title, "Sample Todo")
+        self.mock_cache.get.assert_called_with("todo_1")
+
+    def test_find_by_id_nonexisting(self):
+        """Test that finding a non-existent TodoItem returns None."""
+        self.mock_cache.get.return_value = None
+
+        result = self.repository.find_by_id(999)
+
+        self.assertIsNone(result)
+        self.mock_cache.get.assert_called_with("todo_999")
 
     def test_add_duplicate_id(self):
-        """
-        Test that adding a TodoItem with a duplicate ID raises a ValueError.
-        """
-        self.repository.add(self.sample_todo)
-        duplicate_todo = TodoItem(
-            item_id=1, title="Duplicate Todo", description="Duplicate Description", due_date="2025-01-08"
-        )
+        """Test that adding a TodoItem with a duplicate ID raises a ValueError."""
+        self.repository.todos = [self.sample_todo]
+
+        self.mock_cache.get.return_value = self.sample_todo.__dict__
+
+        duplicate_todo = TodoItem(1, "Duplicate Todo", "Duplicate Description", "2025-01-08")
+
         with self.assertRaises(ValueError) as context:
             self.repository.add(duplicate_todo)
+
         self.assertEqual(str(context.exception), "A TodoItem with ID 1 already exists.")
 
-    def test_delete(self):
-        """
-        Test that a TodoItem is deleted from the repository and removed from the file.
-        """
-        self.repository.todos = [self.sample_todo]
+    def test_delete_existing(self):
+        """Test that a TodoItem is deleted from the repository and removed from Redis."""
+        todo = TodoItem(1, "Sample Todo", "Sample Description", "2025-01-07")
 
-        self.assertTrue(self.repository.delete(1))
-        self.assertEqual(len(self.repository.todos), 0)
+        self.repository.todos = [todo]
 
-        with open(self.test_file_path, "r") as file:
-            data = json.load(file)
-            self.assertEqual(len(data), 0)
+        self.repository.find_by_id = MagicMock(return_value=todo)
 
-        self.assertFalse(self.repository.delete(2))
+        self.mock_cache.get.return_value = None
+
+        result = self.repository.delete(1)
+
+        self.assertTrue(result)
+        self.assertEqual(len(self.repository.todos), 0)  # Verify item was removed from list
+        self.mock_cache.delete.assert_any_call(f"{TODO_ITEM_KEY_PREFIX}1")
+        self.mock_cache.delete.assert_any_call(ALL_TODOS_KEY)
+
+    def test_delete_nonexisting(self):
+        """Test that deleting a non-existent TodoItem returns False."""
+        self.mock_cache.get.return_value = None
+
+        result = self.repository.delete(999)
+
+        self.assertFalse(result)
 
     def test_list_all(self):
-        """
-        Test that all TodoItems are listed correctly from the repository.
-        """
-        todo_1 = TodoItem(item_id=2, title="Second Todo", description="Another Description", due_date="2025-01-07")
-        self.repository.todos = [self.sample_todo, todo_1]
+        """Test that all TodoItems are listed correctly from Redis."""
+        todos_data = [
+            {
+                "item_id": 1,
+                "title": "First Todo",
+                "description": "First Description",
+                "due_date": "2023-01-01",
+                "status": "pending",
+            },
+            {
+                "item_id": 2,
+                "title": "Second Todo",
+                "description": "Second Description",
+                "due_date": "2023-01-02",
+                "status": "completed",
+            },
+        ]
+
+        self.mock_cache.get.return_value = todos_data
 
         todos = self.repository.list_all()
+
         self.assertEqual(len(todos), 2)
-        self.assertEqual(todos[0].title, "Sample Todo")
+        self.assertEqual(todos[0].title, "First Todo")
         self.assertEqual(todos[1].title, "Second Todo")
+        self.mock_cache.get.assert_called_with("all_todos")
 
-    def test_save_to_file(self):
-        """
-        Test that the list of TodoItems is saved to a file.
-        """
-        self.repository.todos = [self.sample_todo]
-        self.repository.save_to_file()
+    def test_load_from_redis(self):
+        """Test that TodoItems are loaded from Redis correctly."""
+        todos_data = [
+            {
+                "item_id": 1,
+                "title": "Test Todo",
+                "description": "Test Description",
+                "due_date": "2023-01-01",
+                "status": "pending",
+            }
+        ]
 
-        with open(self.test_file_path, "r") as file:
-            data = json.load(file)
-            self.assertEqual(len(data), 1)
-            self.assertEqual(data[0]["item_id"], 1)
-            self.assertEqual(data[0]["title"], "Sample Todo")
-            self.assertEqual(data[0]["description"], "Sample Description")
-            self.assertEqual(data[0]["due_date"], "2025-01-07")
+        self.mock_cache.get.return_value = todos_data
 
-    def test_load_from_file(self):
-        """
-        Test that TodoItems are loaded from the file if it exists.
-        """
-        with open(self.test_file_path, "w", encoding="utf-8") as file:
-            json.dump([self.sample_todo.__dict__], file)
+        todos = self.repository._load_from_redis()
 
-        todos = self.repository._load_from_file()
         self.assertEqual(len(todos), 1)
         self.assertEqual(todos[0].item_id, 1)
-        self.assertEqual(todos[0].title, "Sample Todo")
-        self.assertEqual(todos[0].description, "Sample Description")
-        self.assertEqual(todos[0].due_date, "2025-01-07")
+        self.assertEqual(todos[0].title, "Test Todo")
+        self.mock_cache.get.assert_called_with("all_todos")
+
+    def test_save_to_redis(self):
+        """Test that TodoItems are saved to Redis correctly."""
+        self.repository.todos = [self.sample_todo]
+
+        self.repository._save_to_redis()
+
+        self.mock_cache.set.assert_any_call(ALL_TODOS_KEY, [self.sample_todo])
+
+        self.mock_cache.set.assert_any_call(f"{TODO_ITEM_KEY_PREFIX}{self.sample_todo.item_id}", self.sample_todo)

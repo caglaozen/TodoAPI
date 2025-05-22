@@ -34,7 +34,7 @@ def create_todo():
     )
 
 
-@app.route("/todos/<int:item_id>", methods=["PUT"])
+@app.route("/todos/<string:item_id>", methods=["PUT"])
 def update_todo(item_id):
     """
     Handles the PUT request to update a specific todo item.
@@ -69,7 +69,7 @@ def update_todo(item_id):
     )
 
 
-@app.route("/todos/<int:item_id>", methods=["DELETE"])
+@app.route("/todos/<string:item_id>", methods=["DELETE"])
 def delete_todo(item_id):
     """
     Handles the DELETE request to delete a specific todo item.
@@ -85,12 +85,7 @@ def delete_todo(item_id):
 
 @app.route("/todos", methods=["GET"])
 def list_all_todos():
-    """
-    Handles the GET request to list all todo items.
-
-    :return: A JSON response containing a list of all TodoItem details and a 200 status code.
-    """
-    todos = service.repository.list_all()
+    todos = service.get_all_todos()
 
     result = [
         {
@@ -106,7 +101,7 @@ def list_all_todos():
     return jsonify(result), 200
 
 
-@app.route("/todos/<int:item_id>/complete", methods=["PUT"])
+@app.route("/todos/<string:item_id>/complete", methods=["PUT"])
 def mark_todo_as_completed(item_id):
     """
     Handles the PUT request to mark a specific todo item as completed.
@@ -134,4 +129,4 @@ def mark_todo_as_completed(item_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=8000)
