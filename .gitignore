@@ -2,3 +2,10 @@
 .idea/
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.vscode/
+venv/
+.env/
+ENV/
+env/
