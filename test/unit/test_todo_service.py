@@ -142,7 +142,6 @@ class TestTodoService(unittest.TestCase):
         result = self.service.create_todo("New Todo", "New Description", "2023-01-01")
         self.mock_es_client.index_todo.assert_called_once()
 
-
     def test_update_todo_elasticsearch_called(self):
         todo = TodoItem(1, "Test Todo", "Test Description", "2023-01-01")
         self.mock_repository.update.return_value = todo
