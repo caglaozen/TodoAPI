@@ -106,3 +106,22 @@ class TodoRepository:
         if cached_todos:
             return [TodoItem(**todo) if isinstance(todo, dict) else todo for todo in cached_todos]
         return []
+
+    def update(self, item_id, **updates):
+        """
+        Updates an existing TodoItem with the given details.
+
+        :param item_id: The ID of the todo item to update.
+        :param updates: The details to update for the TodoItem.
+        :return: The updated TodoItem instance, or None if the item does not exist.
+        """
+        for todo in self.todos:
+            if todo.item_id == item_id:
+                valid_fields = {
+                    key: value for key, value in updates.items() if value is not None and hasattr(todo, key)
+                }
+                for key, value in valid_fields.items():
+                    setattr(todo, key, value)
+                self._save_to_redis()
+                return todo
+        return None

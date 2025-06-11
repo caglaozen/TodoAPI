@@ -128,5 +128,13 @@ def mark_todo_as_completed(item_id):
     )
 
 
+@app.route("/todos/search", methods=["GET"])
+def search_todos():
+    query = request.args.get("q", "")
+    results = service.es_client.search_todos(query)
+    hits = results["hits"]["hits"]
+    return jsonify([hit["_source"] for hit in hits]), 200
+
+
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=8000)

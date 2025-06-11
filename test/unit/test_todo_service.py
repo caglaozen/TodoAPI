@@ -9,15 +9,22 @@ from src.model.todo_item import TodoItem
 class TestTodoService(unittest.TestCase):
     def setUp(self):
         self.mock_repository = MagicMock()
-        self.patcher = patch("src.core.todo_service.RedisCache")
-        self.mock_redis_class = self.patcher.start()
+        self.patcher_redis = patch("src.core.todo_service.RedisCache")
+        self.mock_redis_class = self.patcher_redis.start()
         self.mock_cache = MagicMock()
         self.mock_redis_class.return_value = self.mock_cache
+
+        self.patcher_es = patch("src.core.todo_service.ElasticsearchClient")
+        self.mock_es_class = self.patcher_es.start()
+        self.mock_es_client = MagicMock()
+        self.mock_es_class.return_value = self.mock_es_client
+
         self.service = TodoService(self.mock_repository)
         self.sample_todo = TodoItem(1, "Sample Todo", "Sample Description", "2025-01-07")
 
     def tearDown(self):
-        self.patcher.stop()
+        self.patcher_redis.stop()
+        self.patcher_es.stop()
 
     def test_get_all_todos(self):
         """Test that all todos are retrieved correctly."""
@@ -77,28 +84,17 @@ class TestTodoService(unittest.TestCase):
     def test_update_todo_existing(self):
         """Test updating an existing todo."""
         todo = TodoItem(1, "Test Todo", "Test Description", "2023-01-01")
-
-        self.mock_repository.todos = [todo]
-
+        self.mock_repository.update.return_value = todo
         result = self.service.update_todo(1, title="Updated Title", description="Updated Description")
-
-        self.assertIsNotNone(result)
         self.assertEqual(result, todo)
-        self.assertEqual(result.title, "Updated Title")
-        self.assertEqual(result.description, "Updated Description")
-
-        self.assertEqual(todo.title, "Updated Title")
-        self.assertEqual(todo.description, "Updated Description")
-
-        self.mock_repository._save_to_redis.assert_called_once()
+        self.mock_repository.update.assert_called_once_with(1, title="Updated Title", description="Updated Description")
 
     def test_update_todo_nonexistent(self):
         """Test updating a nonexistent todo returns None."""
-        self.mock_repository.todos = []
-
+        self.mock_repository.update.return_value = None
         result = self.service.update_todo(999, title="Updated Title")
-
         self.assertIsNone(result)
+        self.mock_repository.update.assert_called_once_with(999, title="Updated Title")
 
     def test_mark_as_completed_existing(self):
         """Test marking an existing todo as completed."""
@@ -116,11 +112,10 @@ class TestTodoService(unittest.TestCase):
 
     def test_mark_as_completed_nonexistent(self):
         """Test marking a nonexistent todo as completed returns None."""
-        self.mock_repository.todos = []
-
+        self.mock_repository.update.return_value = None
         result = self.service.mark_as_completed(999)
-
         self.assertIsNone(result)
+        self.mock_repository.update.assert_called_once_with(999, status="completed")
 
     def test_delete_todo_existing(self):
         """Test deleting an existing todo."""
@@ -141,3 +136,19 @@ class TestTodoService(unittest.TestCase):
 
         self.assertFalse(result)
         self.mock_repository.delete.assert_called_with(999)
+
+    def test_create_todo_elasticsearch_called(self):
+        self.mock_repository.todos = []
+        result = self.service.create_todo("New Todo", "New Description", "2023-01-01")
+        self.mock_es_client.index_todo.assert_called_once()
+
+    def test_update_todo_elasticsearch_called(self):
+        todo = TodoItem(1, "Test Todo", "Test Description", "2023-01-01")
+        self.mock_repository.update.return_value = todo
+        self.service.update_todo(1, title="Updated Title")
+        self.mock_es_client.index_todo.assert_called_once()
+
+    def test_delete_todo_elasticsearch_called(self):
+        self.mock_repository.delete.return_value = True
+        self.service.delete_todo(1)
+        self.mock_es_client.delete_todo.assert_called_once_with(1)

@@ -1,6 +1,7 @@
 import uuid
 
 from src.config.redis_config import ALL_TODOS_KEY, TODO_ITEM_KEY_PREFIX
+from src.core.elasticsearch_client import ElasticsearchClient
 from src.core.redis_cache import RedisCache
 from src.model.todo_item import TodoItem
 
@@ -14,6 +15,7 @@ class TodoService:
         """
         self.repository = repository
         self.cache = RedisCache()
+        self.es_client = ElasticsearchClient()
 
     def get_all_todos(self):
         """
@@ -46,6 +48,7 @@ class TodoService:
         todo = TodoItem(unique_id, title, description, due_date)
         self.repository.add(todo)
         self.cache.delete(ALL_TODOS_KEY)
+        self.es_client.index_todo(todo.__dict__)
 
         return todo
 
@@ -57,18 +60,10 @@ class TodoService:
         :param updates: The details to update for the TodoItem.
         :return: The updated TodoItem instance, or None if the item does not exist.
         """
-        for todo in self.repository.todos:
-            if todo.item_id == item_id:
-                valid_fields = {
-                    key: value for key, value in updates.items() if value is not None and hasattr(todo, key)
-                }
-                for key, value in valid_fields.items():
-                    setattr(todo, key, value)
-
-                self.repository._save_to_redis()
-
-                return todo
-        return None
+        todo = self.repository.update(item_id, **updates)
+        if todo:
+            self.es_client.index_todo(todo.__dict__)
+        return todo
 
     def mark_as_completed(self, item_id):
         """
@@ -95,4 +90,7 @@ class TodoService:
         self.cache.delete(key)
         self.cache.delete(ALL_TODOS_KEY)
 
-        return self.repository.delete(item_id)
+        result = self.repository.delete(item_id)
+        if result:
+            self.es_client.delete_todo(item_id)
+        return result
