@@ -144,3 +144,77 @@ class TestTodoRepository(unittest.TestCase):
         self.mock_cache.set.assert_any_call(ALL_TODOS_KEY, [self.sample_todo])
 
         self.mock_cache.set.assert_any_call(f"{TODO_ITEM_KEY_PREFIX}{self.sample_todo.item_id}", self.sample_todo)
+
+    def test_find_by_id_in_repository_list(self):
+        """Test finding a todo by ID in repository list when not cached."""
+        todo = TodoItem(1, "Test Todo", "Test Description", "2023-01-01")
+        self.repository.todos = [todo]
+        self.mock_cache.get.return_value = None
+
+        found_todo = self.repository.find_by_id(1)
+
+        self.assertEqual(found_todo.item_id, 1)
+        self.assertEqual(found_todo.title, "Test Todo")
+        self.mock_cache.set.assert_called_with(f"{TODO_ITEM_KEY_PREFIX}1", todo)
+
+    def test_list_all_empty_cache(self):
+        """Test list_all when cache is empty."""
+        self.mock_cache.get.return_value = None
+        todo = TodoItem(1, "Test Todo", "Test Description", "2023-01-01")
+        self.repository.todos = [todo]
+
+        result = self.repository.list_all()
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0].title, "Test Todo")
+        # Verify that both ALL_TODOS_KEY and individual todo were cached
+        self.mock_cache.set.assert_any_call(ALL_TODOS_KEY, [todo])
+        self.mock_cache.set.assert_any_call(f"{TODO_ITEM_KEY_PREFIX}1", todo)
+
+    def test_load_from_redis_empty(self):
+        """Test loading from Redis when cache is empty."""
+        self.mock_cache.get.return_value = None
+
+        todos = self.repository._load_from_redis()
+
+        self.assertEqual(len(todos), 0)
+
+    def test_update_existing_todo(self):
+        """Test updating an existing todo."""
+        todo = TodoItem(1, "Original Title", "Original Description", "2023-01-01")
+        self.repository.todos = [todo]
+
+        updated_todo = self.repository.update(1, title="Updated Title", description="Updated Description")
+
+        self.assertIsNotNone(updated_todo)
+        self.assertEqual(updated_todo.title, "Updated Title")
+        self.assertEqual(updated_todo.description, "Updated Description")
+        self.mock_cache.set.assert_called()
+
+    def test_update_nonexistent_todo(self):
+        """Test updating a non-existent todo returns None."""
+        self.repository.todos = []
+
+        result = self.repository.update(999, title="Updated Title")
+
+        self.assertIsNone(result)
+
+    def test_update_with_none_values(self):
+        """Test updating a todo with None values (should be ignored)."""
+        todo = TodoItem(1, "Original Title", "Original Description", "2023-01-01")
+        self.repository.todos = [todo]
+
+        updated_todo = self.repository.update(1, title=None, description="New Description")
+
+        self.assertEqual(updated_todo.title, "Original Title")
+        self.assertEqual(updated_todo.description, "New Description")
+
+    def test_update_with_invalid_fields(self):
+        """Test updating a todo with invalid field names (should be ignored)."""
+        todo = TodoItem(1, "Original Title", "Original Description", "2023-01-01")
+        self.repository.todos = [todo]
+
+        updated_todo = self.repository.update(1, invalid_field="value", title="New Title")
+
+        self.assertEqual(updated_todo.title, "New Title")
+        self.assertFalse(hasattr(updated_todo, "invalid_field"))
