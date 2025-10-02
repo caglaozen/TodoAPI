@@ -79,11 +79,9 @@ class TodoRepository:
         """
         cached_todos = self.cache.get(ALL_TODOS_KEY)
         if cached_todos:
-            # Redis'ten alınan todos listesini TodoItem nesnelerine dönüştür
             self.todos = [TodoItem(**todo) if isinstance(todo, dict) else todo for todo in cached_todos]
             return self.todos
 
-        # Eğer ALL_TODOS_KEY yoksa, bellek içindeki listeyi kullan ve Redis'e kaydet
         self._save_to_redis()
         return self.todos
 
