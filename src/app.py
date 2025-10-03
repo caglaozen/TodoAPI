@@ -4,6 +4,7 @@ from src.core.todo_service import TodoService
 from src.repository.todo_repository import TodoRepository
 
 app = Flask(__name__)
+app.config["JSON_AS_ASCII"] = False
 
 repo = TodoRepository()
 service = TodoService(repo)

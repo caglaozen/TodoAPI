@@ -38,7 +38,7 @@ class RedisCache:
             return
 
         try:
-            self.redis_client.set(key, json.dumps(value, default=lambda obj: obj.__dict__))
+            self.redis_client.set(key, json.dumps(value, default=lambda obj: obj.__dict__, ensure_ascii=False))
         except Exception as e:
             logger.error(f"Redis set error: {e}")
 

@@ -79,8 +79,6 @@ class TestTodoService(unittest.TestCase):
         self.assertEqual(added_todo.title, "New Todo")
         self.assertEqual(added_todo.description, "New Description")
 
-        self.mock_cache.delete.assert_called_with(ALL_TODOS_KEY)
-
     def test_update_todo_existing(self):
         """Test updating an existing todo."""
         todo = TodoItem(1, "Test Todo", "Test Description", "2023-01-01")
@@ -125,8 +123,6 @@ class TestTodoService(unittest.TestCase):
 
         self.assertTrue(result)
         self.mock_repository.delete.assert_called_with(1)
-        self.mock_cache.delete.assert_any_call(f"{TODO_ITEM_KEY_PREFIX}1")
-        self.mock_cache.delete.assert_any_call(ALL_TODOS_KEY)
 
     def test_delete_todo_nonexistent(self):
         """Test deleting a nonexistent todo returns False."""

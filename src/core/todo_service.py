@@ -1,6 +1,5 @@
 import uuid
 
-from src.config.redis_config import ALL_TODOS_KEY, TODO_ITEM_KEY_PREFIX
 from src.core.elasticsearch_client import ElasticsearchClient
 from src.core.redis_cache import RedisCache
 from src.model.todo_item import TodoItem
@@ -47,7 +46,6 @@ class TodoService:
 
         todo = TodoItem(unique_id, title, description, due_date)
         self.repository.add(todo)
-        self.cache.delete(ALL_TODOS_KEY)
         self.es_client.index_todo(todo.__dict__)
 
         return todo
@@ -83,13 +81,6 @@ class TodoService:
         :param item_id: The ID of the todo item to delete.
         :return: True if the item was deleted, False otherwise.
         """
-        item_id_str = str(item_id)
-
-        key = f"{TODO_ITEM_KEY_PREFIX}{item_id_str}"
-
-        self.cache.delete(key)
-        self.cache.delete(ALL_TODOS_KEY)
-
         result = self.repository.delete(item_id)
         if result:
             self.es_client.delete_todo(item_id)
