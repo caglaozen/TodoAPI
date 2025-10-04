@@ -7,6 +7,9 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
+asyncio_logger = logging.getLogger("asyncio")
+asyncio_logger.setLevel(logging.CRITICAL)
+
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
@@ -118,44 +121,17 @@ async def handle_list_tools() -> list[types.Tool]:
             },
         ),
         types.Tool(
-            name="batch_operations",
-            description=TOOL_DESCRIPTIONS["batch_operations"],
+            name="strands_assistant",
+            description=TOOL_DESCRIPTIONS["strands_assistant"],
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "operations": {
-                        "type": "array",
-                        "description": "List of operations to execute",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "action": {
-                                    "type": "string",
-                                    "enum": ["create", "update", "delete", "mark_completed", "list"],
-                                    "description": "The action to perform",
-                                },
-                                "params": {
-                                    "type": "object",
-                                    "description": "Parameters for the action. Can use 'title' instead of 'item_id' to find todos by name (case-insensitive)",
-                                    "properties": {
-                                        "title": {
-                                            "type": "string",
-                                            "description": "Todo title - for create action OR to find existing todo",
-                                        },
-                                        "item_id": {
-                                            "type": "string",
-                                            "description": "Todo ID (UUID format) - alternative to using title",
-                                        },
-                                        "description": {"type": "string", "description": "Todo description"},
-                                        "due_date": {"type": "string", "description": "Due date"},
-                                    },
-                                },
-                            },
-                            "required": ["action", "params"],
-                        },
+                    "message": {
+                        "type": "string",
+                        "description": "Natural language request in English or Turkish. Examples: 'kitap okumayı 3 saat yap ve yemek yapmayı sil', 'create 3 todos and delete completed ones', 'find work todos and mark done'",
                     }
                 },
-                "required": ["operations"],
+                "required": ["message"],
             },
         ),
     ]
@@ -209,8 +185,26 @@ async def handle_call_tool(
         elif name == "search_todos":
             result = todo_tools.search_todos(query=arguments.get("query", ""))
 
-        elif name == "batch_operations":
-            result = todo_tools.batch_operations(operations=arguments.get("operations", []))
+        elif name == "strands_assistant":
+            from src.agent import invoke_agent
+
+            user_message = arguments.get("message", "")
+            logger.info(f"🤖 Strands assistant called with message: {user_message}")
+
+            try:
+                agent_response = invoke_agent(user_message)
+                result = {
+                    "status": "success",
+                    "message": "Strands assistant completed",
+                    "response": str(agent_response),
+                }
+                logger.info(f"✨ Strands response: {str(agent_response)[:200]}...")
+            except Exception as e:
+                result = {
+                    "status": "error",
+                    "message": f"Strands assistant error: {str(e)}",
+                }
+                logger.error(f"❌ Strands assistant error: {e}", exc_info=True)
 
         else:
             result = {"status": "error", "message": f"Unknown tool: {name}"}
@@ -245,7 +239,7 @@ async def main():
     logger.info("   5. mark_completed - Mark a todo as completed")
     logger.info("   6. delete_todo - Delete a todo")
     logger.info("   7. search_todos - Search todos with Elasticsearch")
-    logger.info("   8. batch_operations - Execute multiple operations in ONE call")
+    logger.info("   8. strands_assistant ⭐ - AI-powered multi-step reasoning")
     logger.info("=" * 60)
     logger.info("🔗 Waiting for MCP client connections (stdin/stdout)...")
     logger.info("=" * 60)

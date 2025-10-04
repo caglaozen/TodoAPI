@@ -9,5 +9,5 @@ TOOL_DESCRIPTIONS = {
     "mark_completed": "Marks a todo item as completed. Use when user says they finished/completed/done a task. Keywords: 'tamamladım', 'bitti', 'yaptım', 'completed', 'done'. Can be used with other tools.",
     "delete_todo": "Deletes a todo item permanently. Use when user wants to remove/delete/sil a task. Keywords: 'sil', 'delete', 'kaldır', 'remove'. Can be used with other tools.",
     "search_todos": "Searches todos by keyword using Elasticsearch. Use when user wants to find/search todos containing specific words.",
-    "batch_operations": "PREFERRED: Executes multiple todo operations in ONE call. Use this when user requests multiple actions (create, update, delete, mark complete) to avoid conversation length limits. This is MORE EFFICIENT than calling individual tools separately.",
+    "strands_assistant": "⭐ AI-POWERED MULTI-STEP: Advanced assistant with autonomous reasoning. Use for COMPLEX requests requiring multiple steps. Examples: 'update X and delete Y', 'create 3 todos and mark completed ones', 'find work todos and organize them'. Automatically plans and executes operations. Supports English and Turkish.",
 }

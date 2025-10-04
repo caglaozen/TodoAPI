@@ -10,13 +10,17 @@ services:
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
       - GOOGLE_GENAI_USE_VERTEXAI=FALSE
       - GOOGLE_API_KEY=AIzaSyDgM1hnMpVV7oxPptQoTWbXcH4-LhiZY88
       - DEBUG=True
+      - USE_STRANDS=true
     volumes:
       - ./src:/app/src
     depends_on:
       - redis
+      - elasticsearch
 
   redis:
     image: redis:7-alpine

@@ -137,5 +137,41 @@ def search_todos():
     return jsonify([hit["_source"] for hit in hits]), 200
 
 
+@app.route("/agent/chat", methods=["POST"])
+def agent_chat():
+    """
+    Handles POST request to chat with Strands agent.
+
+    :return: JSON response with agent's answer
+    """
+    data = request.json
+    message = data.get("message", "")
+    debug = data.get("debug", {})
+
+    if not message:
+        return jsonify({"error": "message is required"}), 400
+
+    try:
+        import os
+
+        os.environ["AGENT_DEBUG"] = "true" if debug.get("tool_calls") else "false"
+
+        from src.agent import invoke_agent, get_debug_info, clear_debug_info
+
+        clear_debug_info()
+
+        response = invoke_agent(message)
+
+        result = {"status": "success", "response": response}
+
+        if debug.get("tool_calls"):
+            result["debug"] = {"tool_calls": get_debug_info()}
+
+        return jsonify(result), 200
+
+    except Exception as e:
+        return jsonify({"status": "error", "error": str(e)}), 500
+
+
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=8000)
